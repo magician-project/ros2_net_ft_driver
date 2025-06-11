@@ -15,7 +15,6 @@ ATIFTSensor::ATIFTSensor() : Node("ati_ft_sensor")
     const std::string sensor_ip = this->get_parameter("sensor_ip").as_string();
     //ati_ft_interface_ = std::make_unique<AtiFTInterface>(sensor_ip);
 
-
     ati_ft_interface_ = static_unique_pointer_cast<AtiFTInterface>(
         std::move(NetFTInterface::create("ati", sensor_ip)));
 
@@ -52,7 +51,7 @@ ATIFTSensor::ATIFTSensor() : Node("ati_ft_sensor")
 
     //ROS
 
-    this->declare_parameter("wrench_topic_name", this->get_name()+std::string("/wrench"));
+    this->declare_parameter("wrench_topic_name", this->get_name()+std::string("/wrench_sensed"));
     const std::string wrench_topic_name = this->get_parameter("wrench_topic_name").as_string();
     wrench_pub_ = this->create_publisher<geometry_msgs::msg::WrenchStamped>(wrench_topic_name, 1);
 
@@ -75,8 +74,8 @@ ATIFTSensor::ATIFTSensor() : Node("ati_ft_sensor")
         std::bind(&ATIFTSensor::set_sampling_rate, this, std::placeholders::_1, std::placeholders::_2));
 
 
-    this->declare_parameter("rate", 100.0);
-    const double rate = this->get_parameter("rate").as_double();
+    this->declare_parameter("node_rate", 100.0);
+    const double rate = this->get_parameter("node_rate").as_double();
     timer_ = this->create_wall_timer(
         std::chrono::duration<double>(1.0 / rate),
         std::bind(&ATIFTSensor::timer_callback, this));
