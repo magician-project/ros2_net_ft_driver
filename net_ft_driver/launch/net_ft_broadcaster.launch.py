@@ -84,12 +84,14 @@ def launch_setup(context, *args, **kwargs):
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[robot_description_param, ft_controller],
+        output="screen",
     )
 
     robot_state_publisher_node = launch_ros.actions.Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[robot_description_param],
+        output="screen",
     )
 
     force_torque_sensor_broadcaster_spawner = launch_ros.actions.Node(
@@ -110,6 +112,7 @@ def launch_setup(context, *args, **kwargs):
             "-c",
             "/controller_manager",
         ],
+        output="screen",
     )
 
     nodes = [

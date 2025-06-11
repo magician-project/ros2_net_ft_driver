@@ -14,11 +14,16 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp
   rclcpp_lifecycle
   TinyXML2
+  std_msgs
+  std_srvs
+  geometry_msgs
 )
 
 find_package(ament_cmake REQUIRED)
 find_package(asio_cmake_module REQUIRED)
 find_package(tinyxml2_vendor REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
 foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
   if(${Dependency} STREQUAL "CURLPP")
     include(FindPkgConfig)
@@ -27,6 +32,10 @@ foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
     find_package(${Dependency} REQUIRED)
   endif()
 endforeach()
+
+include_directories(
+  include
+)
 
 add_library(
   ${PROJECT_NAME}
@@ -48,9 +57,58 @@ ament_target_dependencies(
 )
 pluginlib_export_plugin_description_file(hardware_interface hardware_interface_plugin.xml)
 
+rosidl_generate_interfaces(${PROJECT_NAME}_interfaces
+  "srv/SetInt.srv"
+  LIBRARY_NAME ${PROJECT_NAME}
+   #DEPENDENCIES geometry_msgs # Add packages that above messages depend on, in this case geometry_msgs for Sphere.msg
+)
+ament_export_dependencies(rosidl_default_runtime)
+rosidl_get_typesupport_target(
+  cpp_typesupport_target 
+  ${PROJECT_NAME}_interfaces
+  "rosidl_typesupport_cpp"
+)
+
+add_library( ${PROJECT_NAME}_ati_ft_sensor
+  SHARED
+  src/ATIFTSensor.cpp
+)
+ament_target_dependencies( ${PROJECT_NAME}_ati_ft_sensor
+  rclcpp
+  std_srvs
+  geometry_msgs
+)
+target_link_libraries( ${PROJECT_NAME}_ati_ft_sensor
+  ${PROJECT_NAME}
+  "${cpp_typesupport_target}"
+)
+
+add_executable(
+  ati_ft_main
+  src/ati_ft_main.cpp
+)
+ament_target_dependencies(
+  ati_ft_main
+  rclcpp
+)
+target_link_libraries(
+  ati_ft_main
+  ${PROJECT_NAME}_ati_ft_sensor
+)
+
 install(
   TARGETS ${PROJECT_NAME}
   DESTINATION lib
+)
+
+install(
+  TARGETS ${PROJECT_NAME}_ati_ft_sensor
+  DESTINATION lib
+)
+
+install(
+  TARGETS ati_ft_main
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 install(

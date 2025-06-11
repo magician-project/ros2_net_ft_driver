@@ -43,7 +43,8 @@ public:
 
   AtiFTInterface() = delete;
 
-  bool set_bias() final;
+  bool set_bias() override final;
+  bool set_bias(const std::array<double, 6>& biases);
 
   bool clear_bias() final;
 
@@ -53,6 +54,7 @@ public:
 
 protected:
   bool set_cgi_variable(const std::string& cgi_name, const std::string& var_name, const std::string& value);
+  bool set_cgi_variables(const std::string& cgi_name, const std::vector<std::string>& var_names, const std::vector<std::string>& values);
 };
 
 class AtiFTFactory : public NetFTFactory

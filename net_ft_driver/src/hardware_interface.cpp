@@ -103,11 +103,13 @@ NetFtHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*previous_st
   std::string use_hardware_biasing = info_.hardware_parameters["use_hardware_biasing"];
   if (driver_->start_streaming()) {
     if (use_hardware_biasing == "True" || use_hardware_biasing == "true") {
+      RCLCPP_INFO(kLogger, "Setting hardware biases...");
       if (!driver_->set_bias()) {
         RCLCPP_FATAL(kLogger, "Couldn't zero sensor with software bias!");
         return hardware_interface::CallbackReturn::ERROR;
       }
     } else {
+      RCLCPP_INFO(kLogger, "Clearing biases...");
       if (!driver_->clear_bias()) {
         RCLCPP_FATAL(kLogger, "Couldn't clear sensor software bias!");
         return hardware_interface::CallbackReturn::ERROR;

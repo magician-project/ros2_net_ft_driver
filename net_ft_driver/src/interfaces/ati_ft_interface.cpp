@@ -51,9 +51,36 @@ bool AtiFTInterface::set_cgi_variable(const std::string& cgi_name, const std::st
     request.perform();
     return true;
   } catch (curlpp::RuntimeError& e) {
-    std::cerr << e.what() << std::endl;
+    std::cerr << "[set_cgi_variable] " << e.what() << std::endl;
   } catch (curlpp::LogicError& e) {
-    std::cerr << e.what() << std::endl;
+    std::cerr << "[set_cgi_variable] " << e.what() << std::endl;
+  }
+  return false;
+}
+
+bool AtiFTInterface::set_cgi_variables(const std::string& cgi_name, const std::vector<std::string>& var_names,
+                                      const std::vector<std::string>& values)
+{
+  if (var_names.size() != values.size() ) {
+    std::cerr << "[set_cgi_variable] var_names and values have different sizes" << std::endl;
+    return false;
+  }
+  try {
+    curlpp::Cleanup cleanup;
+    curlpp::Easy request;
+    std::string xml_url{ "http://" + ip_address_ + "/" + cgi_name + "?"};
+    for (size_t i=0; i<var_names.size()-1; i++) {
+      xml_url.append(var_names.at(i) + "=" + values.at(i) + "&");
+    }
+    xml_url.append(var_names.back() + "=" + values.back());
+
+    request.setOpt(new curlpp::options::Url(xml_url));
+    request.perform();
+    return true;
+  } catch (curlpp::RuntimeError& e) {
+    std::cerr << "[set_cgi_variable] " << e.what() << std::endl;
+  } catch (curlpp::LogicError& e) {
+    std::cerr << "[set_cgi_variable] " << e.what() << std::endl;
   }
   return false;
 }
@@ -63,28 +90,58 @@ bool AtiFTInterface::set_bias()
   return send_command(kBias);
 }
 
-bool AtiFTInterface::clear_bias()
+bool AtiFTInterface::set_bias(const std::array<double,6>& biases)
 {
-  std::vector<bool> cum_ret;
-  for (int i = 0; i < 6; i++) {
-    auto ret = set_cgi_variable("setting.cgi", "setbias" + std::to_string(i), std::to_string(0));
-    cum_ret.push_back(ret);
-  }
-  return std::all_of(cum_ret.begin(), cum_ret.end(), [](bool v) { return v; });
+  auto ret = set_cgi_variables("setting.cgi", 
+    {"setbias0", "setbias1", "setbias2", "setbias3", "setbias4", "setbias5"},
+    {std::to_string(biases.at(0)), std::to_string(biases.at(1)), std::to_string(biases.at(2)),
+      std::to_string(biases.at(3)), std::to_string(biases.at(4)), std::to_string(biases.at(5))}
+  );
+  return ret;
 }
 
+bool AtiFTInterface::clear_bias()
+{
+  return set_bias({0,0,0,0,0,0});
+}
+
+/**
+Sets the RDT output rate in Hertz. The actual value used
+may be rounded up; see Section 4.7—Communication
+Settings Page (comm.htm) for details.
+*/
 bool AtiFTInterface::set_sampling_rate(int rate)
 {
-  rate = std::max(min_sampling_freq_, std::min(rate, max_sampling_freq_));
+  if (rate < 1 || rate > 7000) {
+    std::cerr << "Sampling rate our of value, allowed range: 1-7000";
+    return false;
+  }
   return set_cgi_variable("comm.cgi", "comrdtrate", std::to_string(rate));
 }
 
-bool AtiFTInterface::set_internal_filter(int rate)
+/**
+Filter Index | Cutoff
+-------------|-----------
+0            | no filter
+1            | 838 Hz
+2            | 326 Hz
+3            | 152 Hz
+4            | 73 Hz
+5            | 35 Hz
+6            | 18 Hz
+7            | 8 Hz
+8            | 5 Hz
+9            | 1500 Hz
+10           | 2000 Hz
+11           | 2500 Hz
+12           | 3000 Hz
+*/
+bool AtiFTInterface::set_internal_filter(int value)
 {
-  if (rate < 0 || rate > 8) {
-    std::cerr << "Filter rate out of the range, setting to the closest value!";
-    rate = std::max(0, std::min(rate, 8));
+  if (value < 0 || value > 12) {
+    std::cerr << "Filter value out of the range, allowed range: 0-12";
+    return false;
   }
-  return set_cgi_variable("setting.cgi", "setuserfilter", std::to_string(rate));
+  return set_cgi_variable("setting.cgi", "setuserfilter", std::to_string(value));
 }
 }  // namespace net_ft_driver
