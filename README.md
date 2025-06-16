@@ -32,8 +32,7 @@ rosdep install --ignore-src --from-paths src -y -r --rosdistro $ROS_DISTRO
 Build the package:
 
 ```Bash
-colcon build --symlink-install
-source install/local_setup.sh
+colcon build 
 ```
 
 ## Running - Magician version
