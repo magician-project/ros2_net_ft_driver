@@ -1,5 +1,7 @@
 # Net F/T Sensor Driver
 
+**For MAGICIAN project** Check Installation and Running - Magician version below
+
 This is meta-package that contains ROS2 software for reading the data from F/T sensors
 with RDT communication interface such as: ATI F/T sensors, OnRobot F/T sensors.
 
