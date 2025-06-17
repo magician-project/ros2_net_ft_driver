@@ -1,5 +1,7 @@
 # Net F/T Sensor Driver
 
+**For MAGICIAN project** Check Installation and Running - Magician version below
+
 This is meta-package that contains ROS2 software for reading the data from F/T sensors
 with RDT communication interface such as: ATI F/T sensors, OnRobot F/T sensors.
 
@@ -24,7 +26,7 @@ Installing dependencies:
 sudo apt update
 sudo apt dist-upgrade
 rosdep update
-git -C src clone --branch galactic https://github.com/gbartyzel/ros2_net_ft_driver.git
+git -C src clone --branch humble https://github.com/gbartyzel/ros2_net_ft_driver.git
 sudo apt install -y libasio-dev libcurlpp-dev
 rosdep install --ignore-src --from-paths src -y -r --rosdistro $ROS_DISTRO
 ```
@@ -32,8 +34,7 @@ rosdep install --ignore-src --from-paths src -y -r --rosdistro $ROS_DISTRO
 Build the package:
 
 ```Bash
-colcon build --symlink-install
-source install/local_setup.sh
+colcon build 
 ```
 
 ## Running - Magician version
