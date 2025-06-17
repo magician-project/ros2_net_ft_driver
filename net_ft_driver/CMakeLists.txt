@@ -17,6 +17,8 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   std_msgs
   std_srvs
   geometry_msgs
+  diagnostic_msgs
+  diagnostic_updater
 )
 
 find_package(ament_cmake REQUIRED)

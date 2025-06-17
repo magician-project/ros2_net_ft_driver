@@ -3,6 +3,9 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/wrench_stamped.hpp>
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
+#include <diagnostic_updater/diagnostic_status_wrapper.hpp>
+
 #include <std_srvs/srv/trigger.hpp>
 #include <net_ft_driver/srv/set_int.hpp>
 
@@ -29,6 +32,10 @@ private:
 
     rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr wrench_pub_;
 
+    rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostic_publisher_;
+    diagnostic_msgs::msg::DiagnosticArray diag_array_;
+    uint32_t last_packet_count_;
+
     rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reset_bias_service_;
     void reset_bias(
         const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
@@ -46,13 +53,15 @@ private:
 
     // Internal
     std::array<double, 6> ft_sensor_measurements_;
-    double packet_count_;
-    double lost_packets_;
-    double out_of_order_count_;
-    double status_;
+    uint32_t packet_count_;
+    uint32_t lost_packets_;
+    uint32_t out_of_order_count_;
+    uint32_t status_;
 
     bool read();
     bool publish();
+    void publish_diagnostic();
+
 
     //https://stackoverflow.com/questions/36120424/alternatives-of-static-pointer-cast-for-unique-ptr
     template<typename TO, typename FROM>

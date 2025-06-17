@@ -55,6 +55,10 @@ ATIFTSensor::ATIFTSensor() : Node("ati_ft_sensor")
     const std::string wrench_topic_name = this->get_parameter("wrench_topic_name").as_string();
     wrench_pub_ = this->create_publisher<geometry_msgs::msg::WrenchStamped>(wrench_topic_name, 1);
 
+    this->declare_parameter("diagnostic_topic_name", this->get_name()+std::string("/diagnostic"));
+    const std::string diagnostic_topic_name = this->get_parameter("diagnostic_topic_name").as_string();
+    diagnostic_publisher_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(diagnostic_topic_name, 1);
+
     this->declare_parameter("reset_bias_service_name", this->get_name()+std::string("/reset_bias"));
     const std::string reset_bias_service_name = this->get_parameter("reset_bias_service_name").as_string();
     reset_bias_service_ = this->create_service<std_srvs::srv::Trigger>(
@@ -102,10 +106,10 @@ bool ATIFTSensor::read() {
     }
 
     ft_sensor_measurements_ = data->ft_values;
-    lost_packets_ = static_cast<double>(data->lost_packets);
-    packet_count_ = static_cast<double>(data->packet_count);
-    out_of_order_count_ = static_cast<double>(data->out_of_order_count);
-    status_ = static_cast<double>(data->status);
+    lost_packets_ = static_cast<uint32_t>(data->lost_packets);
+    packet_count_ = static_cast<uint32_t>(data->packet_count);
+    out_of_order_count_ = static_cast<uint32_t>(data->out_of_order_count);
+    status_ = static_cast<uint32_t>(data->status);
 
     return true;
 }
@@ -122,6 +126,33 @@ bool ATIFTSensor::publish() {
 
     wrench_pub_->publish(wrench);
     return true;
+}
+
+void ATIFTSensor::publish_diagnostic()
+{
+  diag_array_.status.clear();
+  diagnostic_updater::DiagnosticStatusWrapper diag_status;
+
+  if (last_packet_count_ == packet_count_) {
+    diag_status.mergeSummary(diagnostic_updater::DiagnosticStatusWrapper::ERROR, "No new data received!");
+  }
+  if (status_ != 0) {
+    diag_status.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::ERROR, "Net F/T driver reports error 0x%08x",
+                              status_);
+    RCLCPP_ERROR(this->get_logger(), "SERIOUS ERROR: STATUS IS NOT HEALTHY!!!!!!!!!!!!!!!!!!");
+
+  }
+  diag_status.clear();
+  diag_status.addf("System status", "0x%08x", status_);
+  diag_status.addf("Good packets", "%u", packet_count_);
+  diag_status.addf("Lost packets", "%u", lost_packets_);
+  diag_status.addf("Out-of-order packets", "%u", out_of_order_count_);
+
+  last_packet_count_ = packet_count_;
+  diag_array_.status.push_back(diag_status);
+  diag_array_.header.stamp = this->get_clock()->now();
+
+  diagnostic_publisher_->publish(diag_array_);
 }
 
 void ATIFTSensor::reset_bias(
@@ -173,4 +204,5 @@ void ATIFTSensor::timer_callback()
 {
     read();
     publish();
+    publish_diagnostic();
 }

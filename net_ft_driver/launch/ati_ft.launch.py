@@ -28,10 +28,11 @@ def generate_launch_description():
     sensor_filter_value_arg = DeclareLaunchArgument("sensor_filter_value", default_value="0")
     sensor_sampling_rate_arg = DeclareLaunchArgument("sensor_sampling_rate", default_value="500")
     wrench_topic_name_arg = DeclareLaunchArgument("wrench_topic_name", default_value="/ati_ft_sensor/wrench_sensed")
+    diagnostic_topic_name_arg = DeclareLaunchArgument("diagnostic_topic_name", default_value="/ati_ft_sensor/diagnostic")
     reset_bias_service_name_arg = DeclareLaunchArgument("reset_bias_service_name", default_value="/ati_ft_sensor/reset_bias")
     set_filter_service_name_arg = DeclareLaunchArgument("set_filter_service_name", default_value="/ati_ft_sensor/set_filter")
     set_sampling_rate_service_name_arg = DeclareLaunchArgument("set_sampling_rate_service_name", default_value="/ati_ft_sensor/set_sampling_rate")
-    node_rate_arg = DeclareLaunchArgument("node_rate", default_value="100")
+    node_rate_arg = DeclareLaunchArgument("node_rate", default_value="500.0")
 
     ati_ft_sensor_node = Node(
         package="net_ft_driver",
@@ -43,6 +44,7 @@ def generate_launch_description():
             {"sensor_filter_value": LaunchConfiguration("sensor_filter_value")},
             {"sensor_sampling_rate": LaunchConfiguration("sensor_sampling_rate")},
             {"wrench_topic_name": LaunchConfiguration("wrench_topic_name")},
+            {"diagnostic_topic_name": LaunchConfiguration("diagnostic_topic_name")},
             {"reset_bias_service_name": LaunchConfiguration("reset_bias_service_name")},
             {"set_filter_service_name": LaunchConfiguration("set_filter_service_name")},
             {"set_sampling_rate_service_name": LaunchConfiguration("set_sampling_rate_service_name")},
@@ -57,6 +59,7 @@ def generate_launch_description():
             sensor_filter_value_arg,
             sensor_sampling_rate_arg,
             wrench_topic_name_arg,
+            diagnostic_topic_name_arg,
             reset_bias_service_name_arg,
             set_filter_service_name_arg,
             set_sampling_rate_service_name_arg,
