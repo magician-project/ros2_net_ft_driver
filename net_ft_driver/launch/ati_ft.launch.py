@@ -32,7 +32,8 @@ def generate_launch_description():
     reset_bias_service_name_arg = DeclareLaunchArgument("reset_bias_service_name", default_value="/ati_ft_sensor/reset_bias")
     set_filter_service_name_arg = DeclareLaunchArgument("set_filter_service_name", default_value="/ati_ft_sensor/set_filter")
     set_sampling_rate_service_name_arg = DeclareLaunchArgument("set_sampling_rate_service_name", default_value="/ati_ft_sensor/set_sampling_rate")
-    node_rate_arg = DeclareLaunchArgument("node_rate", default_value="500.0")
+    node_rate_arg = DeclareLaunchArgument("node_rate", default_value="500.0", description="This should be equal or bigger than the sensor_sampling_rate to not lose packets and to not receive the recent values very late (there seems to be a FIFO buffer)")
+    sensing_frame_arg = DeclareLaunchArgument("sensing_frame", default_value="ft_sensing_frame", description="To fill the header in the wrench message. So set this according to the name of the sensing frame in the urdf, taking care that is positioned correctly")
 
     ati_ft_sensor_node = Node(
         package="net_ft_driver",
@@ -49,6 +50,7 @@ def generate_launch_description():
             {"set_filter_service_name": LaunchConfiguration("set_filter_service_name")},
             {"set_sampling_rate_service_name": LaunchConfiguration("set_sampling_rate_service_name")},
             {"node_rate": LaunchConfiguration("node_rate")},
+            {"sensing_frame": LaunchConfiguration("sensing_frame")},
         ],
     )
 
@@ -64,6 +66,7 @@ def generate_launch_description():
             set_filter_service_name_arg,
             set_sampling_rate_service_name_arg,
             node_rate_arg,
+            sensing_frame_arg,
             ati_ft_sensor_node,
         ]
     )

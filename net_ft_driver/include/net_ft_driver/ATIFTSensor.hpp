@@ -31,6 +31,7 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
 
     rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr wrench_pub_;
+    geometry_msgs::msg::WrenchStamped wrench_msg_;
 
     rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostic_publisher_;
     diagnostic_msgs::msg::DiagnosticArray diag_array_;

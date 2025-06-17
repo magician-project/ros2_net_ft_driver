@@ -55,6 +55,16 @@ ATIFTSensor::ATIFTSensor() : Node("ati_ft_sensor")
     const std::string wrench_topic_name = this->get_parameter("wrench_topic_name").as_string();
     wrench_pub_ = this->create_publisher<geometry_msgs::msg::WrenchStamped>(wrench_topic_name, 1);
 
+    wrench_msg_ = geometry_msgs::msg::WrenchStamped();
+    this->declare_parameter("sensing_frame", "ft_sensing_frame");
+    wrench_msg_.header.frame_id = this->get_parameter("sensing_frame").as_string();
+    wrench_msg_.wrench.force.x = 0.0;
+    wrench_msg_.wrench.force.y = 0.0;
+    wrench_msg_.wrench.force.z = 0.0;
+    wrench_msg_.wrench.torque.x = 0.0;
+    wrench_msg_.wrench.torque.y = 0.0;
+    wrench_msg_.wrench.torque.z = 0.0;
+
     this->declare_parameter("diagnostic_topic_name", this->get_name()+std::string("/diagnostic"));
     const std::string diagnostic_topic_name = this->get_parameter("diagnostic_topic_name").as_string();
     diagnostic_publisher_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(diagnostic_topic_name, 1);
@@ -115,16 +125,15 @@ bool ATIFTSensor::read() {
 }
 
 bool ATIFTSensor::publish() {
-    auto wrench = geometry_msgs::msg::WrenchStamped();
-    wrench.header.stamp = this->now();
-    wrench.wrench.force.x = ft_sensor_measurements_[0];
-    wrench.wrench.force.y = ft_sensor_measurements_[1];
-    wrench.wrench.force.z = ft_sensor_measurements_[2];
-    wrench.wrench.torque.x = ft_sensor_measurements_[3];
-    wrench.wrench.torque.y = ft_sensor_measurements_[4];
-    wrench.wrench.torque.z = ft_sensor_measurements_[5];
+    wrench_msg_.header.stamp = this->now();
+    wrench_msg_.wrench.force.x = ft_sensor_measurements_[0];
+    wrench_msg_.wrench.force.y = ft_sensor_measurements_[1];
+    wrench_msg_.wrench.force.z = ft_sensor_measurements_[2];
+    wrench_msg_.wrench.torque.x = ft_sensor_measurements_[3];
+    wrench_msg_.wrench.torque.y = ft_sensor_measurements_[4];
+    wrench_msg_.wrench.torque.z = ft_sensor_measurements_[5];
 
-    wrench_pub_->publish(wrench);
+    wrench_pub_->publish(wrench_msg_);
     return true;
 }
 
