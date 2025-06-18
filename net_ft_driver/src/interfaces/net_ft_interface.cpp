@@ -71,7 +71,16 @@ NetFTInterface::NetFTInterface(const std::string& ip_address, int max_sampling_f
 
   auto cal_config = get_config("netftcalapi.xml");
   force_scale_ = 1.0 / std::stod(parse_config(cal_config, "netftCalibration", "calcpf"));
+  const std::string t_unit_measure = parse_config(cal_config, "netftCalibration", "scaltu");
   torque_scale_ = 1.0 / std::stod(parse_config(cal_config, "netftCalibration", "calcpt"));
+
+  if (t_unit_measure.compare ("Nmm") == 0) {
+    torque_scale_ /= 1000; 
+  } else if (t_unit_measure.compare ("Nm") == 0){
+
+  } else {
+    throw (std::runtime_error("t_unit_measure not recognized!"));
+  }
 }
 
 NetFTInterface::~NetFTInterface()
