@@ -148,7 +148,7 @@ void ATIFTSensor::publish_diagnostic()
   if (status_ != 0) {
     diag_status.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::ERROR, "Net F/T driver reports error 0x%08x",
                               status_);
-    RCLCPP_ERROR(this->get_logger(), "SERIOUS ERROR: STATUS IS NOT HEALTHY!!!!!!!!!!!!!!!!!!");
+    RCLCPP_ERROR(this->get_logger(), "SERIOUS ERROR: STATUS IS NOT HEALTHY!, but: %d", status_);
 
   }
   diag_status.clear();
