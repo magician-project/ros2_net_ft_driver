@@ -126,10 +126,10 @@ bool ATIFTSensor::read() {
 
 bool ATIFTSensor::publish() {
     wrench_msg_.header.stamp = this->now();
-    wrench_msg_.wrench.force.x = ft_sensor_measurements_[0];
+    wrench_msg_.wrench.force.x = -ft_sensor_measurements_[0];
     wrench_msg_.wrench.force.y = ft_sensor_measurements_[1];
     wrench_msg_.wrench.force.z = ft_sensor_measurements_[2];
-    wrench_msg_.wrench.torque.x = ft_sensor_measurements_[3];
+    wrench_msg_.wrench.torque.x = -ft_sensor_measurements_[3];
     wrench_msg_.wrench.torque.y = ft_sensor_measurements_[4];
     wrench_msg_.wrench.torque.z = ft_sensor_measurements_[5];
 

@@ -69,9 +69,11 @@ NetFTInterface::NetFTInterface(const std::string& ip_address, int max_sampling_f
   socket_.open(asio::ip::udp::v4());
   socket_.connect(endpoint);
 
-  auto cal_config = get_config("netftcalapi.xml");
+  /*auto cal_config = get_config("netftcalapi.xml");
   force_scale_ = 1.0 / std::stod(parse_config(cal_config, "netftCalibration", "calcpf"));
-  torque_scale_ = 1.0 / std::stod(parse_config(cal_config, "netftCalibration", "calcpt"));
+  torque_scale_ = 1.0 / std::stod(parse_config(cal_config, "netftCalibration", "calcpt"));*/
+  force_scale_ = 1.0 / 1000000; 
+  torque_scale_ = 1.0 / 1000000000;
 }
 
 NetFTInterface::~NetFTInterface()
