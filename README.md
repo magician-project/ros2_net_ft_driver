@@ -43,6 +43,15 @@ ros2 launch net_ft_driver ati_ft.launch.py
 ```
 Please check this launch for optional arguments to set.
 
+192.168.137.89 is the custom ip we used in September 2025 IIT integration
+
+you want
+`ros2 service call /ati_ft_sensor/reset_bias std_srvs/srv/Trigger {}\ `
+and  
+`ros2 service call /ati_ft_sensor/set_filter net_ft_driver/srv/SetInt value:\ 7\`
+
+
+
 ## Running - Original repo
 
 Launch the controller:
