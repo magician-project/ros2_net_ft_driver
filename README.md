@@ -26,7 +26,7 @@ Installing dependencies:
 sudo apt update
 sudo apt dist-upgrade
 rosdep update
-git -C src clone --branch humble https://github.com/gbartyzel/ros2_net_ft_driver.git
+git -C src clone --branch humble https://github.com/magician-project/ros2_net_ft_driver.git
 sudo apt install -y libasio-dev libcurlpp-dev
 rosdep install --ignore-src --from-paths src -y -r --rosdistro $ROS_DISTRO
 ```
@@ -99,3 +99,4 @@ Settings Page (comm.htm) for details.
 */
 bool AtiFTInterface::set_sampling_rate(int rate)
 ```
+
