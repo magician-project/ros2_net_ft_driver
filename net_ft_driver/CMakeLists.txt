@@ -25,6 +25,9 @@ find_package(ament_cmake REQUIRED)
 find_package(asio_cmake_module REQUIRED)
 find_package(tinyxml2_vendor REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(matlogger2 REQUIRED)
+find_package(Eigen3 REQUIRED)
+
 
 foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
   if(${Dependency} STREQUAL "CURLPP")
@@ -37,6 +40,7 @@ endforeach()
 
 include_directories(
   include
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 add_library(
@@ -98,6 +102,29 @@ target_link_libraries(
   ${PROJECT_NAME}_ati_ft_sensor
 )
 
+add_library(${PROJECT_NAME}_ft_logger
+  SHARED
+  src/FT_logger.cpp
+)
+ament_target_dependencies( ${PROJECT_NAME}_ft_logger
+  rclcpp
+  geometry_msgs
+  matlogger2
+)
+
+add_executable( ${PROJECT_NAME}_ft_logger_main
+  src/ft_logger_main.cpp
+)
+ament_target_dependencies( ${PROJECT_NAME}_ft_logger_main
+  rclcpp
+)
+target_link_libraries( ${PROJECT_NAME}_ft_logger_main
+  ${PROJECT_NAME}_ft_logger
+)
+
+
+set_target_properties(${PROJECT_NAME}_ft_logger_main PROPERTIES OUTPUT_NAME ft_logger_main PREFIX "")
+
 install(
   TARGETS ${PROJECT_NAME}
   DESTINATION lib
@@ -114,11 +141,21 @@ install(
 )
 
 install(
+  TARGETS ${PROJECT_NAME}_ft_logger
+  DESTINATION lib
+)
+
+install(
+  TARGETS ${PROJECT_NAME}_ft_logger_main
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
   DIRECTORY include/
   DESTINATION include
 )
 
-install(DIRECTORY config launch
+install(DIRECTORY config launch logs
   DESTINATION share/${PROJECT_NAME}
 )
 

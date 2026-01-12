@@ -1,2 +1,5 @@
 compile_commands.json
 .clangd/
+
+logs/*
+!logs/.gitkeep
