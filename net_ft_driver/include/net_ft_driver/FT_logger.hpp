@@ -37,5 +37,9 @@ private:
 	std::string topic_;
 	rclcpp::Subscription<geometry_msgs::msg::WrenchStamped>::SharedPtr sub_;
     std::mutex wrench_mutex_;
+
+    rclcpp::Clock ros_clock_;
+    rclcpp::Clock system_clock_;
+    rclcpp::Time timestamp_msg_;
 };
 }  // namespace net_ft_driver

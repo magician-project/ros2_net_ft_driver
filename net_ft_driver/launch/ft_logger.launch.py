@@ -9,7 +9,8 @@ def generate_launch_description():
             name='ft_logger_main',
             output='screen',
             parameters=[{
-                'topic_name': '/ati_ft_sensor/wrench_sensed'
+                'topic_name': '/ati_ft_sensor/wrench_sensed',
+                'rate': 500.0,
             }]
         )
     ])

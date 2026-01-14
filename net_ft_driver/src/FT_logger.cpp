@@ -3,11 +3,13 @@
 using namespace net_ft_driver;
 
 FTLogger::FTLogger(const rclcpp::NodeOptions & options)
-: Node("ft_logger", options)
+    : Node("ft_logger", options),
+    ros_clock_(RCL_ROS_TIME),
+    system_clock_(RCL_SYSTEM_TIME)
 {
     this->declare_parameter("topic_name", "/ati_ft_sensor/wrench_sensed");
     this->declare_parameter("logging_file_name", "ft_logger_data");
-    this->declare_parameter("rate", 100.0);
+    this->declare_parameter("rate", 500.0);
 
     topic_ = this->get_parameter("topic_name").as_string(); 
     std::string log_name = this->get_parameter("logging_file_name").as_string();
@@ -35,6 +37,8 @@ FTLogger::FTLogger(const rclcpp::NodeOptions & options)
       std::chrono::duration_cast<std::chrono::nanoseconds>(period),
       std::bind(&FTLogger::timer_callback, this));
 
+    timestamp_msg_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
+
     RCLCPP_INFO(this->get_logger(), "FTLogger started at %.1f Hz", rate_);
 }
 
@@ -42,6 +46,7 @@ void FTLogger::wrench_callback(const geometry_msgs::msg::WrenchStamped::SharedPt
 {
     std::lock_guard<std::mutex> lock(wrench_mutex_);
 
+    timestamp_msg_ = msg->header.stamp;
     wrench_eigen_(0) = msg->wrench.force.x;
     wrench_eigen_(1) = msg->wrench.force.y;
     wrench_eigen_(2) = msg->wrench.force.z;
@@ -74,6 +79,9 @@ bool FTLogger::logData() {
     std::lock_guard<std::mutex> lock(wrench_mutex_);
 
     mat_logger_->add("wrench", wrench_eigen_);
+    mat_logger_->add("timestamp_msg_ns", timestamp_msg_.nanoseconds());
+    mat_logger_->add("time_ros_ns", ros_clock_.now().nanoseconds());
+    mat_logger_->add("time_system_ns", system_clock_.now().nanoseconds());
 
     return true;
 }
