@@ -44,6 +44,8 @@ ros2 launch net_ft_driver ati_ft.launch.py
 Please check this launch for optional arguments to set.
 
 192.168.137.89 is the custom ip we used in September 2025 IIT integration
+192.168.137.201 is the custom ip we used in January 2026 Altinay integration for mini58
+192.168.1.202 is the custom ip we used in January 2026 Altinay integration for nano17
 
 you want
 `ros2 service call /ati_ft_sensor/reset_bias std_srvs/srv/Trigger {}\ `
